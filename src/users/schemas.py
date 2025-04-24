@@ -1,8 +1,7 @@
 import uuid
-from typing import Annotated
 
 from pydantic import BaseModel
-from pydantic.v1 import Field
+from src.users.models import Roles
 
 
 class SuccessfulResponse(BaseModel):
@@ -20,15 +19,24 @@ class Token(BaseModel):
 
 
 class UserCreate(BaseModel):
-    login: Annotated[str, Field(min_length=6, max_length=50)]
-    password: Annotated[str, Field(min_length=8, max_length=25)]
+    name: str
+    surname: str
+    patronymic: str
+    phone: str
+    login: str
+    password: str
 
 
 class UserLogin(BaseModel):
-    login: Annotated[str, Field(min_length=6, max_length=50)]
-    password: Annotated[str, Field(min_length=8, max_length=25)]
+    login: str
+    password: str
 
 
 class UserResponse(BaseModel):
     id: uuid.UUID
-    login: Annotated[str, Field(min_length=6, max_length=50)]
+    name: str
+    surname: str
+    patronymic: str
+    role: Roles
+    phone: str
+    login: str
