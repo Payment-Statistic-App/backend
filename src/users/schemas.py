@@ -1,5 +1,7 @@
 import uuid
+
 from pydantic import BaseModel
+from src.users.models import Roles
 
 
 class SuccessfulResponse(BaseModel):
@@ -16,22 +18,25 @@ class Token(BaseModel):
     token_type: str = "Bearer"
 
 
-class StudentCreate(BaseModel):
+class UserCreate(BaseModel):
     name: str
     surname: str
     patronymic: str
+    phone: str
     login: str
     password: str
 
 
-class StudentLogin(BaseModel):
+class UserLogin(BaseModel):
     login: str
     password: str
 
 
-class StudentResponse(BaseModel):
+class UserResponse(BaseModel):
     id: uuid.UUID
     name: str
     surname: str
     patronymic: str
+    role: Roles
+    phone: str
     login: str

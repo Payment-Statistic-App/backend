@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from src.students.routers import router as user_router
+from src.users.routers import router as user_router
 
 
 @asynccontextmanager

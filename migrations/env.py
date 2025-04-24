@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.database import Base
 
-from src.students.models import Student
+from src.users.models import User, Roles
 
 from alembic import context
 
