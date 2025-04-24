@@ -1,0 +1,34 @@
+# Environments
+*.env
+*.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+#Python
+__pycache__
+
+# mkdocs documentation
+/site
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+/.idea
+
+#VSCode
+/.vscode
+
+/certs/
+/pgdata/
+.history/
+*.webp
