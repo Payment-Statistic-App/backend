@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 
 class LoginExistsException(HTTPException):
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "User with this login already exists"
+    detail = "Student with this login already exists"
 
     def __init__(self):
         super().__init__(status_code=self.status_code, detail=self.detail)
@@ -32,7 +32,7 @@ class TokenTypeException(HTTPException):
 
 class NotFoundException(HTTPException):
     status_code = status.HTTP_404_NOT_FOUND
-    detail = "User not found"
+    detail = "Student not found"
 
     def __init__(self):
         super().__init__(status_code=self.status_code, detail=self.detail)
