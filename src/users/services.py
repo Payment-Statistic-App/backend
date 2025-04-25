@@ -6,14 +6,14 @@ from typing import Optional, List
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
+from config_data import constants
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
 from src.users.models import User, Roles, Group
 from src.users.repositories import UserRepository
 from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit
-from src.users.exceptions import CredentialException, TokenTypeException, UserNotFoundException, LoginExistsException, \
-    GroupExistException, GroupNotFoundException
+from src.users.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
 
 http_bearer = HTTPBearer()
 
@@ -102,7 +102,7 @@ class UserService:
 
     async def create_user(self, user: UserCreate) -> User:
         if await self.repository.get_user_by_login(user.login) is not None:
-            raise LoginExistsException()
+            raise AlreadyExistException(constants.ALREADY_EXIST_USER_MESSAGE)
 
         return await self.repository.create_user(user)
 
@@ -130,7 +130,7 @@ class UserService:
     async def get_group_by_id(self, group_id: uuid.UUID) -> Group:
         group = await self.repository.get_group_by_id(group_id)
         if group is None:
-            raise GroupNotFoundException()
+            raise NotFoundException(constants.GROUP_NOT_FOUND_MESSAGE)
 
         return group
 
@@ -140,7 +140,7 @@ class UserService:
     async def get_student_by_id(self, student_id: uuid.UUID) -> User:
         student = await self.repository.get_user_by_id(student_id)
         if student is None or student.role != Roles.student:
-            raise UserNotFoundException()  # Переписать после все NotFound под единый интерфейс
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
         return student
 
     async def get_all_students(self) -> List[User]:
@@ -151,7 +151,7 @@ class UserService:
 
     async def create_group(self, group_name: str) -> Group:
         if await self.get_group_by_name(group_name):
-            raise GroupExistException()
+            raise AlreadyExistException(constants.ALREADY_EXIST_GROUP_MESSAGE)
         return await self.repository.create_group(group_name)
 
     async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
@@ -161,7 +161,7 @@ class UserService:
     async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
         user = await self.get_user_by_id(user_id)
         if user is None:
-            raise UserNotFoundException()
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
         return await self.repository.edit_user(user.id, new_user_data)
 
     async def delete_group(self, group_id: uuid.UUID) -> None:
@@ -171,7 +171,7 @@ class UserService:
     async def delete_user(self, user_id: uuid.UUID) -> None:
         user = await self.get_user_by_id(user_id)
         if user is None:
-            raise UserNotFoundException()
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
         return await self.repository.delete_user(user_id)
 
     async def add_student_to_group(self, user_id: uuid.UUID, group_id: uuid.UUID) -> Group:

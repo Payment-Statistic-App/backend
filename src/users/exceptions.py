@@ -1,20 +1,18 @@
 from fastapi import HTTPException, status
 
 
-class LoginExistsException(HTTPException):
+class AlreadyExistException(HTTPException):
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "User with this login already exists"
 
-    def __init__(self):
-        super().__init__(status_code=self.status_code, detail=self.detail)
+    def __init__(self, detail):
+        super().__init__(status_code=self.status_code, detail=detail)
 
 
-class GroupExistException(HTTPException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Group with this name already exists"
+class NotFoundException(HTTPException):
+    status_code = status.HTTP_404_NOT_FOUND
 
-    def __init__(self):
-        super().__init__(status_code=self.status_code, detail=self.detail)
+    def __init__(self, detail):
+        super().__init__(status_code=self.status_code, detail=detail)
 
 
 class IncorrectRoleException(HTTPException):
@@ -43,22 +41,6 @@ class TokenTypeException(HTTPException):
         return super().__new__(cls)
 
     def __init__(self, *args):  # noqa
-        super().__init__(status_code=self.status_code, detail=self.detail)
-
-
-class UserNotFoundException(HTTPException):
-    status_code = status.HTTP_404_NOT_FOUND
-    detail = "User not found"
-
-    def __init__(self):
-        super().__init__(status_code=self.status_code, detail=self.detail)
-
-
-class GroupNotFoundException(HTTPException):
-    status_code = status.HTTP_404_NOT_FOUND
-    detail = "Group not found"
-
-    def __init__(self):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
