@@ -22,6 +22,7 @@ class UserCreate(BaseModel):
     name: str
     surname: str
     patronymic: str
+    role: Roles
     phone: str
     login: str
     password: str
@@ -30,6 +31,7 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     login: str
     password: str
+    role: Roles
 
 
 class UserResponse(BaseModel):

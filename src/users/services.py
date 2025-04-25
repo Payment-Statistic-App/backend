@@ -72,6 +72,7 @@ class UserService:
             raise CredentialException()
         if not validate_password(user_data.password, user.password_hash):
             raise CredentialException()
+        self.validate_role(user.role, user_data.role)
 
         return user
 
@@ -114,7 +115,7 @@ class UserService:
     @staticmethod
     def validate_role(current_role: Roles, expected_role: Roles) -> bool:
         if current_role != expected_role:
-            raise IncorrectRoleException()
+            raise CredentialException()
         return True
 
     async def get_current_user(
