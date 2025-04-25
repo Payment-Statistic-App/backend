@@ -9,10 +9,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User
+from src.users.models import User, Roles
 from src.users.repositories import UserRepository
 from src.users.schemas import UserCreate, TokenData, UserLogin
-from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, LoginExistsException
+from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, LoginExistsException, \
+    IncorrectRoleException
 
 http_bearer = HTTPBearer()
 
@@ -104,14 +105,27 @@ class UserService:
 
         return await self.repository.create_user(user)
 
-    async def get_current_user_for_refresh(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
+    async def get_current_user_for_refresh(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> User:
         return await self.validate_user(expected_token_type=REFRESH_TOKEN_TYPE, token=token.credentials)
 
-    async def get_current_user(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
+    @staticmethod
+    def validate_role(current_role: Roles, expected_role: Roles) -> bool:
+        if current_role != expected_role:
+            raise IncorrectRoleException()
+        return True
+
+    async def get_current_user(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> User:
         return await self.validate_user(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
-    async def get_user_by_id(self, user_id: uuid.UUID) -> User:
-        user = await self.repository.get_user_by_id(user_id)
-        if user is None:
-            raise NotFoundException()
-        return user
+
+async def get_user_by_id(self, user_id: uuid.UUID) -> User:
+    user = await self.repository.get_user_by_id(user_id)
+    if user is None:
+        raise NotFoundException()
+    return user
