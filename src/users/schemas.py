@@ -29,6 +29,13 @@ class UserCreate(BaseModel):
     password: str
 
 
+class UserEdit(BaseModel):
+    name: str
+    surname: str
+    patronymic: str
+    phone: str
+
+
 class UserLogin(BaseModel):
     login: str
     password: str

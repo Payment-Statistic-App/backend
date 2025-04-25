@@ -7,7 +7,7 @@ from utils import auth_settings
 from src.database import async_session
 
 from src.users.models import User, Group, Roles
-from src.users.schemas import UserCreate
+from src.users.schemas import UserCreate, UserEdit
 
 
 class UserRepository:
@@ -74,6 +74,39 @@ class UserRepository:
             await session.commit()
 
         return await self.get_group_by_name(group_name)
+
+    async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
+        async with async_session() as session:
+            stmt = update(Group).where(Group.id == group_id).values(name=new_group_name)
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_group_by_id(group_id)
+
+    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
+        async with async_session() as session:
+            stmt = update(User).where(User.id == user_id).values(
+                name=new_user_data.name,
+                surname=new_user_data.surname,
+                patronymic=new_user_data.patronymic,
+                phone=new_user_data.phone,
+            )
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_user_by_id(user_id)
+
+    async def delete_group(self, group_id: uuid.UUID) -> None:
+        async with async_session() as session:
+            stmt = delete(Group).where(Group.id == group_id)
+            await session.execute(stmt)
+            await session.commit()
+
+    async def delete_user(self, user_id: uuid.UUID) -> None:
+        async with async_session() as session:
+            stmt = delete(User).where(User.id == user_id)
+            await session.execute(stmt)
+            await session.commit()
 
     async def add_user_to_group(self, user_id: uuid.UUID, group_id: uuid.UUID) -> Group:
         async with async_session() as session:

@@ -1,11 +1,13 @@
 import os
+from typing import Annotated
+
 import uvicorn
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from src.users.models import User
+from src.users.models import User, Roles
 from src.users.routers.student_routers import router as student_router
 from src.users.routers.admin_routers import router as admin_router
 from src.users.schemas import Token
@@ -34,6 +36,15 @@ async def authenticate_user_jwt(user: User = Depends(UserService().authenticate_
     access_token = UserService().create_access_token(user)
     refresh_token = UserService().create_refresh_token(user)
     return Token(access_token=access_token, refresh_token=refresh_token)
+
+
+@app.post("/refresh", response_model=Token, response_model_exclude_none=True)
+async def refresh_jwt(
+        current_user: Annotated[User, Depends(UserService().get_current_user_for_refresh)]
+) -> Token:
+    UserService().validate_role(current_user.role, Roles.student)
+    access_token = UserService().create_access_token(current_user)
+    return Token(access_token=access_token)
 
 
 origins = [

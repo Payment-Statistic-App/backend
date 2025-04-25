@@ -11,9 +11,9 @@ from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
 from src.users.models import User, Roles, Group
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserLogin
+from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit
 from src.users.exceptions import CredentialException, TokenTypeException, UserNotFoundException, LoginExistsException, \
-    IncorrectRoleException, GroupExistException, GroupNotFoundException
+    GroupExistException, GroupNotFoundException
 
 http_bearer = HTTPBearer()
 
@@ -153,6 +153,26 @@ class UserService:
         if await self.get_group_by_name(group_name):
             raise GroupExistException()
         return await self.repository.create_group(group_name)
+
+    async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
+        group = await self.get_group_by_id(group_id)
+        return await self.repository.edit_group(group.id, new_group_name)
+
+    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
+        user = await self.get_user_by_id(user_id)
+        if user is None:
+            raise UserNotFoundException()
+        return await self.repository.edit_user(user.id, new_user_data)
+
+    async def delete_group(self, group_id: uuid.UUID) -> None:
+        group = await self.get_group_by_id(group_id)
+        return await self.repository.delete_group(group.id)
+
+    async def delete_user(self, user_id: uuid.UUID) -> None:
+        user = await self.get_user_by_id(user_id)
+        if user is None:
+            raise UserNotFoundException()
+        return await self.repository.delete_user(user_id)
 
     async def add_student_to_group(self, user_id: uuid.UUID, group_id: uuid.UUID) -> Group:
         group = await self.get_group_by_id(group_id)
