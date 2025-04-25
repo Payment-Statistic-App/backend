@@ -9,6 +9,14 @@ class LoginExistsException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
+class GroupExistException(HTTPException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Group with this name already exists"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
 class IncorrectRoleException(HTTPException):
     status_code = status.HTTP_403_FORBIDDEN
     detail = "Incorrect user role. Access denied!"
@@ -38,9 +46,17 @@ class TokenTypeException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
-class NotFoundException(HTTPException):
+class UserNotFoundException(HTTPException):
     status_code = status.HTTP_404_NOT_FOUND
     detail = "User not found"
+
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class GroupNotFoundException(HTTPException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Group not found"
 
     def __init__(self):
         super().__init__(status_code=self.status_code, detail=self.detail)

@@ -3,7 +3,7 @@ import uuid
 
 from enum import Enum
 from typing import Dict, Any, Optional, List
-from sqlalchemy import UUID, func
+from sqlalchemy import UUID, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
@@ -20,18 +20,18 @@ class Group(Base):
     __tablename__ = "groups"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(unique=True)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
-    students: Mapped[List["Student"]] = relationship(back_populates="group", uselist=True,
-                                                     lazy="selectin", cascade="all, delete-orphan")
+    users: Mapped[List["User"]] = relationship(back_populates="group", uselist=True,
+                                               lazy="selectin", cascade="all, delete-orphan")
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": str(self.id),
             "name": self.name,
             "created_at": self.created_at.isoformat(),
-            "students": [student.to_dict() for student in self.students]
+            "users": [user.to_dict() for user in self.users]
         }
 
 
@@ -45,7 +45,7 @@ class User(Base):
     patronymic: Mapped[str] = mapped_column()
     phone: Mapped[str] = mapped_column()
     login: Mapped[str] = mapped_column(unique=True)
-    group_id: Mapped[Optional[uuid.UUID]] = mapped_column(nullable=True, default=None)
+    group_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("groups.id"), nullable=True, default=None)
     password_hash: Mapped[bytes] = mapped_column()
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
@@ -57,6 +57,7 @@ class User(Base):
             "name": self.name,
             "surname": self.surname,
             "patronymic": self.patronymic,
+            "group_id": self.group_id,
             "phone": self.phone,
             "role": self.role,
             "login": self.login,

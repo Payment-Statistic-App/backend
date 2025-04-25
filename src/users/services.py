@@ -2,18 +2,18 @@ import uuid
 import jwt
 
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, List
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User, Roles
+from src.users.models import User, Roles, Group
 from src.users.repositories import UserRepository
 from src.users.schemas import UserCreate, TokenData, UserLogin
-from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, LoginExistsException, \
-    IncorrectRoleException
+from src.users.exceptions import CredentialException, TokenTypeException, UserNotFoundException, LoginExistsException, \
+    IncorrectRoleException, GroupExistException, GroupNotFoundException
 
 http_bearer = HTTPBearer()
 
@@ -124,9 +124,38 @@ class UserService:
     ) -> User:
         return await self.validate_user(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
+    async def get_group_by_name(self, group_name: str) -> Group:
+        return await self.repository.get_group_by_name(group_name)
 
-async def get_user_by_id(self, user_id: uuid.UUID) -> User:
-    user = await self.repository.get_user_by_id(user_id)
-    if user is None:
-        raise NotFoundException()
-    return user
+    async def get_group_by_id(self, group_id: uuid.UUID) -> Group:
+        group = await self.repository.get_group_by_id(group_id)
+        if group is None:
+            raise GroupNotFoundException()
+
+        return group
+
+    async def get_user_by_id(self, user_id: uuid.UUID) -> User:
+        return await self.repository.get_user_by_id(user_id)
+
+    async def get_student_by_id(self, student_id: uuid.UUID) -> User:
+        student = await self.repository.get_user_by_id(student_id)
+        if student is None or student.role != Roles.student:
+            raise UserNotFoundException()  # Переписать после все NotFound под единый интерфейс
+        return student
+
+    async def get_all_students(self) -> List[User]:
+        return await self.repository.get_all_students()
+
+    async def get_all_groups(self) -> List[Group]:
+        return await self.repository.get_all_groups()
+
+    async def create_group(self, group_name: str) -> Group:
+        if await self.get_group_by_name(group_name):
+            raise GroupExistException()
+        return await self.repository.create_group(group_name)
+
+    async def add_student_to_group(self, user_id: uuid.UUID, group_id: uuid.UUID) -> Group:
+        group = await self.get_group_by_id(group_id)
+        student = await self.get_student_by_id(user_id)
+
+        return await self.repository.add_user_to_group(student.id, group.id)
