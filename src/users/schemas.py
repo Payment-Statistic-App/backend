@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel
 from src.users.models import Roles
@@ -39,6 +40,7 @@ class UserResponse(BaseModel):
     name: str
     surname: str
     patronymic: str
+    group_id: Optional[uuid.UUID]
     role: Roles
     phone: str
     login: str

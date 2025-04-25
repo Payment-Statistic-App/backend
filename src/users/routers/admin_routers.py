@@ -11,9 +11,9 @@ router = APIRouter(tags=["admin"], prefix="/admin")
 @router.post("/create_student")
 async def create_student(
         user_create: UserCreate,
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
+        # current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> Token:
-    UserService().validate_role(current_user.role, Roles.admin)
+    # UserService().validate_role(current_user.role, Roles.admin)
     student = await UserService().create_user(user_create)
 
     access_token = UserService().create_access_token(student)
