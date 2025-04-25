@@ -2,17 +2,18 @@ import uuid
 import jwt
 
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, List
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
+from config_data import constants
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User
+from src.users.models import User, Roles, Group
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserLogin
-from src.users.exceptions import CredentialException, TokenTypeException, NotFoundException, LoginExistsException
+from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit
+from src.users.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
 
 http_bearer = HTTPBearer()
 
@@ -71,6 +72,7 @@ class UserService:
             raise CredentialException()
         if not validate_password(user_data.password, user.password_hash):
             raise CredentialException()
+        self.validate_role(user.role, user_data.role)
 
         return user
 
@@ -100,18 +102,80 @@ class UserService:
 
     async def create_user(self, user: UserCreate) -> User:
         if await self.repository.get_user_by_login(user.login) is not None:
-            raise LoginExistsException()
+            raise AlreadyExistException(constants.ALREADY_EXIST_USER_MESSAGE)
 
         return await self.repository.create_user(user)
 
-    async def get_current_user_for_refresh(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
+    async def get_current_user_for_refresh(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> User:
         return await self.validate_user(expected_token_type=REFRESH_TOKEN_TYPE, token=token.credentials)
 
-    async def get_current_user(self, token: HTTPAuthorizationCredentials = Depends(http_bearer)) -> User:
+    @staticmethod
+    def validate_role(current_role: Roles, expected_role: Roles) -> bool:
+        if current_role != expected_role:
+            raise CredentialException()
+        return True
+
+    async def get_current_user(
+            self,
+            token: HTTPAuthorizationCredentials = Depends(http_bearer)
+    ) -> User:
         return await self.validate_user(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
+    async def get_group_by_name(self, group_name: str) -> Group:
+        return await self.repository.get_group_by_name(group_name)
+
+    async def get_group_by_id(self, group_id: uuid.UUID) -> Group:
+        group = await self.repository.get_group_by_id(group_id)
+        if group is None:
+            raise NotFoundException(constants.GROUP_NOT_FOUND_MESSAGE)
+
+        return group
+
     async def get_user_by_id(self, user_id: uuid.UUID) -> User:
-        user = await self.repository.get_user_by_id(user_id)
+        return await self.repository.get_user_by_id(user_id)
+
+    async def get_student_by_id(self, student_id: uuid.UUID) -> User:
+        student = await self.repository.get_user_by_id(student_id)
+        if student is None or student.role != Roles.student:
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        return student
+
+    async def get_all_students(self) -> List[User]:
+        return await self.repository.get_all_students()
+
+    async def get_all_groups(self) -> List[Group]:
+        return await self.repository.get_all_groups()
+
+    async def create_group(self, group_name: str) -> Group:
+        if await self.get_group_by_name(group_name):
+            raise AlreadyExistException(constants.ALREADY_EXIST_GROUP_MESSAGE)
+        return await self.repository.create_group(group_name)
+
+    async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
+        group = await self.get_group_by_id(group_id)
+        return await self.repository.edit_group(group.id, new_group_name)
+
+    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
+        user = await self.get_user_by_id(user_id)
         if user is None:
-            raise NotFoundException()
-        return user
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        return await self.repository.edit_user(user.id, new_user_data)
+
+    async def delete_group(self, group_id: uuid.UUID) -> None:
+        group = await self.get_group_by_id(group_id)
+        return await self.repository.delete_group(group.id)
+
+    async def delete_user(self, user_id: uuid.UUID) -> None:
+        user = await self.get_user_by_id(user_id)
+        if user is None:
+            raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        return await self.repository.delete_user(user_id)
+
+    async def add_student_to_group(self, user_id: uuid.UUID, group_id: uuid.UUID) -> Group:
+        group = await self.get_group_by_id(group_id)
+        student = await self.get_student_by_id(user_id)
+
+        return await self.repository.add_user_to_group(student.id, group.id)
