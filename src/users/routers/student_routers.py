@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.users.models import User, Roles
-from src.users.schemas import UserCreate, Token, UserResponse
+from src.users.schemas import UserResponse, TransactionResponse, TransactionCreate
 from src.users.services import UserService
 
 router = APIRouter(tags=["student"], prefix="/student")
@@ -14,3 +14,12 @@ async def login_for_access_token(
 ) -> UserResponse:
     UserService().validate_role(current_user.role, Roles.student)
     return UserResponse(**current_user.to_dict())
+
+
+@router.post("/new_transaction", response_model=TransactionResponse)
+async def new_semester_payment(
+        new_transaction: TransactionCreate,
+        current_user: Annotated[User, Depends(UserService().get_current_user)]
+) -> TransactionResponse:
+    transaction = await UserService().create_transaction(current_user, new_transaction)
+    return TransactionResponse(**transaction.to_dict())

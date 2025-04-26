@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Optional, List
 
@@ -7,6 +8,25 @@ from src.users.models import Roles
 
 class SuccessfulResponse(BaseModel):
     success: str = "ok"
+
+
+class SemesterResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
+class TransactionCreate(BaseModel):
+    semester_id: uuid.UUID
+    amount: float
+
+
+class TransactionResponse(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    semester_id: uuid.UUID
+    amount: float
+    comment: str
+    created_at: datetime.datetime
 
 
 class TokenData(BaseModel):
@@ -51,6 +71,7 @@ class UserResponse(BaseModel):
     role: Roles
     phone: str
     login: str
+    transactions: List[TransactionResponse]
 
 
 class GroupResponse(BaseModel):

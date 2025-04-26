@@ -1,5 +1,5 @@
 import os
-from typing import Annotated
+from typing import Annotated, List
 
 import uvicorn
 
@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from src.users.models import User, Roles
 from src.users.routers.student_routers import router as student_router
 from src.users.routers.admin_routers import router as admin_router
-from src.users.schemas import Token
+from src.users.schemas import Token, SemesterResponse
 from src.users.services import UserService
 
 
@@ -29,6 +29,12 @@ app = FastAPI(
 @app.get("/ping")
 async def ping_pong():
     return "pong"
+
+
+@app.get("/show_semesters", response_model=List[SemesterResponse])
+async def get_semesters_list() -> List[SemesterResponse]:
+    semesters = await UserService().get_all_semesters()
+    return list(map(lambda x: SemesterResponse(**x.to_dict()), semesters))
 
 
 @app.post("/login", response_model=Token)
