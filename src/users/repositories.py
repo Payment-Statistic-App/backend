@@ -6,7 +6,7 @@ from sqlalchemy import insert, select, delete, update
 from utils import auth_settings
 from src.database import async_session
 
-from src.users.models import User, Group, Roles
+from src.users.models import User, Group, Roles, Semester
 from src.users.schemas import UserCreate, UserEdit
 
 
@@ -67,6 +67,22 @@ class UserRepository:
 
         return group
 
+    async def get_semester_by_name(self, semester_name: str) -> Semester:
+        async with async_session() as session:
+            query = select(Semester).where(Semester.name == semester_name)
+            result = await session.execute(query)
+            semester = result.scalars().first()
+
+        return semester
+
+    async def get_semester_by_id(self, semester_id: uuid.UUID) -> Semester:
+        async with async_session() as session:
+            query = select(Semester).where(Semester.id == semester_id)
+            result = await session.execute(query)
+            semester = result.scalars().first()
+
+        return semester
+
     async def create_group(self, group_name: str) -> Group:
         async with async_session() as session:
             stmt = insert(Group).values(name=group_name)
@@ -75,6 +91,14 @@ class UserRepository:
 
         return await self.get_group_by_name(group_name)
 
+    async def create_semester(self, semester_name: str) -> Semester:
+        async with async_session() as session:
+            stmt = insert(Semester).values(name=semester_name)
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_semester_by_name(semester_name)
+
     async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
         async with async_session() as session:
             stmt = update(Group).where(Group.id == group_id).values(name=new_group_name)
@@ -82,6 +106,14 @@ class UserRepository:
             await session.commit()
 
         return await self.get_group_by_id(group_id)
+
+    async def edit_semester(self, semester_id: uuid.UUID, new_semester_name: str) -> Semester:
+        async with async_session() as session:
+            stmt = update(Semester).where(Semester.id == semester_id).values(name=new_semester_name)
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_semester_by_id(semester_id)
 
     async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
         async with async_session() as session:
@@ -105,6 +137,12 @@ class UserRepository:
     async def delete_user(self, user_id: uuid.UUID) -> None:
         async with async_session() as session:
             stmt = delete(User).where(User.id == user_id)
+            await session.execute(stmt)
+            await session.commit()
+
+    async def delete_semester(self, semester_id: uuid.UUID) -> None:
+        async with async_session() as session:
+            stmt = delete(Semester).where(Semester.id == semester_id)
             await session.execute(stmt)
             await session.commit()
 
@@ -132,8 +170,10 @@ class UserRepository:
 
         return groups
 
-    async def delete_user_by_id(self, user_id: uuid.UUID) -> None:
+    async def get_all_semesters(self) -> List[Semester]:
         async with async_session() as session:
-            stmt = delete(User).where(User.id == user_id)
-            await session.execute(stmt)
-            await session.commit()
+            query = select(Semester)
+            result = await session.execute(query)
+            semesters = result.scalars().all()
+
+        return semesters

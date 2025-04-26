@@ -23,6 +23,13 @@ class Semester(Base):
     name: Mapped[str] = mapped_column(unique=True)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "created_at": self.created_at.isoformat(),
+        }
+
 
 class Group(Base):
     __tablename__ = "groups"

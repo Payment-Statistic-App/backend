@@ -10,7 +10,7 @@ from config_data import constants
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User, Roles, Group
+from src.users.models import User, Roles, Group, Semester
 from src.users.repositories import UserRepository
 from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit
 from src.users.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
@@ -124,15 +124,19 @@ class UserService:
     ) -> User:
         return await self.validate_user(expected_token_type=ACCESS_TOKEN_TYPE, token=token.credentials)
 
-    async def get_group_by_name(self, group_name: str) -> Group:
-        return await self.repository.get_group_by_name(group_name)
-
     async def get_group_by_id(self, group_id: uuid.UUID) -> Group:
         group = await self.repository.get_group_by_id(group_id)
         if group is None:
             raise NotFoundException(constants.GROUP_NOT_FOUND_MESSAGE)
 
         return group
+
+    async def get_semester_by_id(self, semester_id: uuid.UUID) -> Semester:
+        semester = await self.repository.get_semester_by_id(semester_id)
+        if semester is None:
+            raise NotFoundException(constants.SEMESTER_NOT_FOUND_MESSAGE)
+
+        return semester
 
     async def get_user_by_id(self, user_id: uuid.UUID) -> User:
         return await self.repository.get_user_by_id(user_id)
@@ -149,14 +153,26 @@ class UserService:
     async def get_all_groups(self) -> List[Group]:
         return await self.repository.get_all_groups()
 
+    async def get_all_semesters(self) -> List[Semester]:
+        return await self.repository.get_all_semesters()
+
     async def create_group(self, group_name: str) -> Group:
-        if await self.get_group_by_name(group_name):
+        if await self.repository.get_group_by_name(group_name):
             raise AlreadyExistException(constants.ALREADY_EXIST_GROUP_MESSAGE)
         return await self.repository.create_group(group_name)
+
+    async def create_semester(self, semester_name: str) -> Semester:
+        if await self.repository.get_semester_by_name(semester_name):
+            raise AlreadyExistException(constants.ALREADY_EXIST_SEMESTER_MESSAGE)
+        return await self.repository.create_semester(semester_name)
 
     async def edit_group(self, group_id: uuid.UUID, new_group_name: str) -> Group:
         group = await self.get_group_by_id(group_id)
         return await self.repository.edit_group(group.id, new_group_name)
+
+    async def edit_semester(self, semester_id: uuid.UUID, new_semester_name: str) -> Semester:
+        semester = await self.get_semester_by_id(semester_id)
+        return await self.repository.edit_semester(semester.id, new_semester_name)
 
     async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
         user = await self.get_user_by_id(user_id)
@@ -167,6 +183,10 @@ class UserService:
     async def delete_group(self, group_id: uuid.UUID) -> None:
         group = await self.get_group_by_id(group_id)
         return await self.repository.delete_group(group.id)
+
+    async def delete_semester(self, semester_id: uuid.UUID) -> None:
+        semester = await self.get_semester_by_id(semester_id)
+        return await self.repository.delete_semester(semester.id)
 
     async def delete_user(self, user_id: uuid.UUID) -> None:
         user = await self.get_user_by_id(user_id)

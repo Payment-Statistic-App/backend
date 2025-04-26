@@ -57,3 +57,8 @@ class GroupResponse(BaseModel):
     id: uuid.UUID
     name: str
     users: List[UserResponse]
+
+
+class SemesterResponse(BaseModel):
+    id: uuid.UUID
+    name: str
