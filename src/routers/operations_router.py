@@ -1,0 +1,34 @@
+import uuid
+
+from typing import Annotated
+from fastapi import APIRouter, Depends
+
+from src.models import User, Roles
+from src.schemas import GroupResponse, TransactionResponse, TransactionCreate
+from src.services.user_service import UserService
+from src.services.operation_service import OperationService
+
+router = APIRouter(tags=["operations"], prefix="/operations")
+
+
+@router.post("/new_transaction", response_model=TransactionResponse)
+async def new_semester_payment(
+        new_transaction: TransactionCreate,
+        current_user: Annotated[User, Depends(UserService().get_current_user)]
+) -> TransactionResponse:
+    UserService().validate_role(current_user.role, (Roles.student,))
+
+    transaction = await OperationService().create_transaction(current_user, new_transaction)
+    return TransactionResponse(**transaction.to_dict())
+
+
+@router.put("/add_to_group", response_model=GroupResponse)
+async def add_student_to_group(
+        group_id: uuid.UUID,
+        user_id: uuid.UUID,
+        current_user: Annotated[User, Depends(UserService().get_current_user)]
+) -> GroupResponse:
+    UserService().validate_role(current_user.role, (Roles.admin,))
+
+    group = await OperationService().add_student_to_group(user_id, group_id)
+    return GroupResponse(**group.to_dict())

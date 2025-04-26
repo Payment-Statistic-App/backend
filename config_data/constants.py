@@ -7,3 +7,8 @@ GROUP_NOT_FOUND_MESSAGE = "Cancel found this group"
 SEMESTER_NOT_FOUND_MESSAGE = "Cancel found this semester"
 
 TRANSACTION_COMMENT = "Оплата обучения за семестр {semester_name} на сумму {amount}"
+
+# TOKENS SETTINGS
+TOKEN_TYPE_FIELD = "type"
+ACCESS_TOKEN_TYPE = "access"
+REFRESH_TOKEN_TYPE = "refresh"
