@@ -13,7 +13,8 @@ router = APIRouter(tags=["student"], prefix="/student")
 async def login_for_access_token(
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> UserResponse:
-    UserService().validate_role(current_user.role, Roles.student)
+    UserService().validate_role(current_user.role, (Roles.student,))
+
     return UserResponse(**current_user.to_dict())
 
 
@@ -22,5 +23,7 @@ async def new_semester_payment(
         new_transaction: TransactionCreate,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> TransactionResponse:
+    UserService().validate_role(current_user.role, (Roles.student,))
+
     transaction = await OperationService().create_transaction(current_user, new_transaction)
     return TransactionResponse(**transaction.to_dict())

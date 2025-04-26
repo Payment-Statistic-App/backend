@@ -1,7 +1,7 @@
 import uuid
 import jwt
 
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -27,8 +27,8 @@ class UserService:
     operations_repository = operations_repo.OperationsRepository()
 
     @staticmethod
-    def validate_role(current_role: Roles, expected_role: Roles) -> bool:
-        if current_role != expected_role:
+    def validate_role(current_role: Roles, expected_roles: Tuple[Roles, ...]) -> bool:
+        if current_role not in expected_roles:
             raise AccessException()
         return True
 
@@ -38,7 +38,7 @@ class UserService:
             raise CredentialException()
         if not auth_settings.validate_password(user_data.password, user.password_hash):
             raise CredentialException()
-        self.validate_role(user.role, user_data.role)
+        self.validate_role(user.role, (user_data.role,))
 
         return user
 

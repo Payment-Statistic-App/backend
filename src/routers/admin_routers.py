@@ -16,7 +16,7 @@ async def get_students(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         student_id: Optional[uuid.UUID] = Query(None, description="student id for get only one student"),
 ) -> List[UserResponse]:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin, Roles.observer, Roles.accountant))
 
     if student_id is None:
         students = await UserService().get_all_students()
@@ -31,7 +31,7 @@ async def get_groups(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         group_id: Optional[uuid.UUID] = Query(None, description="group id for get only one group"),
 ) -> List[GroupResponse]:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin, Roles.accountant))
 
     if group_id is None:
         groups = await InfraService().get_all_groups()
@@ -46,7 +46,7 @@ async def create_new_user(
         user_create: UserCreate,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> UserResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     user = await UserService().create_user(user_create)
     return UserResponse(**user.to_dict())
@@ -57,7 +57,7 @@ async def create_new_group(
         group_name: str,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> GroupResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     new_group = await InfraService().create_group(group_name)
     return GroupResponse(**new_group.to_dict())
@@ -68,7 +68,7 @@ async def create_new_semester(
         semester_name: str,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> SemesterResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     new_semester = await InfraService().create_semester(semester_name)
     return SemesterResponse(**new_semester.to_dict())
@@ -80,7 +80,7 @@ async def edit_group(
         group_id: uuid.UUID,
         new_group_name: str
 ) -> GroupResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     group = await InfraService().edit_group(group_id, new_group_name)
     return GroupResponse(**group.to_dict())
@@ -92,7 +92,7 @@ async def edit_semester(
         semester_id: uuid.UUID,
         new_semester_name: str
 ) -> SemesterResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     semester = await InfraService().edit_semester(semester_id, new_semester_name)
     return SemesterResponse(**semester.to_dict())
@@ -104,7 +104,7 @@ async def edit_user(
         user_id: uuid.UUID,
         new_user_data: UserEdit
 ) -> UserResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     user = await UserService().edit_user(user_id, new_user_data)
     return UserResponse(**user.to_dict())
@@ -116,7 +116,7 @@ async def add_student_to_group(
         user_id: uuid.UUID,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> GroupResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     group = await OperationService().add_student_to_group(user_id, group_id)
     return GroupResponse(**group.to_dict())
@@ -127,7 +127,7 @@ async def delete_group(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         group_id: uuid.UUID,
 ) -> SuccessfulResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     await InfraService().delete_group(group_id)
     return SuccessfulResponse(success="Group has been successful delete!")
@@ -138,7 +138,7 @@ async def delete_semester(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         semester_id: uuid.UUID,
 ) -> SuccessfulResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     await InfraService().delete_semester(semester_id)
     return SuccessfulResponse(success="Semester has been successful delete!")
@@ -149,7 +149,7 @@ async def delete_user(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         user_id: uuid.UUID,
 ) -> SuccessfulResponse:
-    UserService().validate_role(current_user.role, Roles.admin)
+    UserService().validate_role(current_user.role, (Roles.admin,))
 
     await UserService().delete_user(user_id)
     return SuccessfulResponse(success="User has been successful delete!")
