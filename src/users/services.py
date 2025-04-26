@@ -10,10 +10,10 @@ from config_data import constants
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User, Roles, Group, Semester, Transaction
+from src.models import User, Roles, Group, Semester, Transaction
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit, TransactionCreate
-from src.users.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
+from src.schemas import UserCreate, TokenData, UserLogin, UserEdit, TransactionCreate
+from src.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
 
 http_bearer = HTTPBearer()
 

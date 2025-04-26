@@ -7,8 +7,8 @@ from utils import auth_settings
 from src.database import async_session
 from config_data import constants
 
-from src.users.models import User, Group, Roles, Semester, Transaction
-from src.users.schemas import UserCreate, UserEdit, TransactionCreate
+from src.models import User, Group, Roles, Semester, Transaction
+from src.schemas import UserCreate, UserEdit, TransactionCreate
 
 
 class UserRepository:

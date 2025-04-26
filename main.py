@@ -7,10 +7,10 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from src.users.models import User, Roles
+from src.models import User, Roles
 from src.users.routers.student_routers import router as student_router
 from src.users.routers.admin_routers import router as admin_router
-from src.users.schemas import Token, SemesterResponse
+from src.schemas import Token, SemesterResponse
 from src.users.services import UserService
 
 

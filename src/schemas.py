@@ -3,7 +3,7 @@ import uuid
 from typing import Optional, List
 
 from pydantic import BaseModel
-from src.users.models import Roles
+from src.models import Roles
 
 
 class SuccessfulResponse(BaseModel):

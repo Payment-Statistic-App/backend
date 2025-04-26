@@ -2,8 +2,8 @@ import uuid
 from typing import Annotated, Optional, List
 from fastapi import APIRouter, Depends, Query
 
-from src.users.models import User, Roles
-from src.users.schemas import UserCreate, GroupResponse, UserResponse, SuccessfulResponse, UserEdit, SemesterResponse
+from src.models import User, Roles
+from src.schemas import UserCreate, GroupResponse, UserResponse, SuccessfulResponse, UserEdit, SemesterResponse
 from src.users.services import UserService
 
 router = APIRouter(tags=["admin"], prefix="/admin")

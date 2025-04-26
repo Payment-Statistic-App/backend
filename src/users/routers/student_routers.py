@@ -1,8 +1,8 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from src.users.models import User, Roles
-from src.users.schemas import UserResponse, TransactionResponse, TransactionCreate
+from src.models import User, Roles
+from src.schemas import UserResponse, TransactionResponse, TransactionCreate
 from src.users.services import UserService
 
 router = APIRouter(tags=["student"], prefix="/student")
