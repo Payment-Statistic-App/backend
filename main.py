@@ -13,6 +13,8 @@ from src.users.routers.admin_routers import router as admin_router
 from src.schemas import Token, SemesterResponse
 from src.users.services import UserService
 
+from utils import auth_settings
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,8 +41,8 @@ async def get_semesters_list() -> List[SemesterResponse]:
 
 @app.post("/login", response_model=Token)
 async def authenticate_user_jwt(user: User = Depends(UserService().authenticate_user)) -> Token:
-    access_token = UserService().create_access_token(user)
-    refresh_token = UserService().create_refresh_token(user)
+    access_token = auth_settings.create_access_token(user)
+    refresh_token = auth_settings.create_refresh_token(user)
     return Token(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -49,7 +51,7 @@ async def refresh_jwt(
         current_user: Annotated[User, Depends(UserService().get_current_user_for_refresh)]
 ) -> Token:
     UserService().validate_role(current_user.role, Roles.student)
-    access_token = UserService().create_access_token(current_user)
+    access_token = auth_settings.create_access_token(current_user)
     return Token(access_token=access_token)
 
 
