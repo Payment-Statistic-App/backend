@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends
 
 from src.models import User, Roles
 from src.schemas import UserResponse, TransactionResponse, TransactionCreate
-from src.users.services import UserService
+from src.services.user_service import UserService
+from src.services.operation_service import OperationService
 
 router = APIRouter(tags=["student"], prefix="/student")
 
@@ -21,5 +22,5 @@ async def new_semester_payment(
         new_transaction: TransactionCreate,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> TransactionResponse:
-    transaction = await UserService().create_transaction(current_user, new_transaction)
+    transaction = await OperationService().create_transaction(current_user, new_transaction)
     return TransactionResponse(**transaction.to_dict())

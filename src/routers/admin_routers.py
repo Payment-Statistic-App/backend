@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends, Query
 
 from src.models import User, Roles
 from src.schemas import UserCreate, GroupResponse, UserResponse, SuccessfulResponse, UserEdit, SemesterResponse
-from src.users.services import UserService
+from src.services.user_service import UserService
+from src.services.infra_service import InfraService
+from src.services.operation_service import OperationService
 
 router = APIRouter(tags=["admin"], prefix="/admin")
 
@@ -32,9 +34,9 @@ async def get_groups(
     UserService().validate_role(current_user.role, Roles.admin)
 
     if group_id is None:
-        groups = await UserService().get_all_groups()
+        groups = await InfraService().get_all_groups()
     else:
-        groups = [await UserService().get_group_by_id(group_id)]
+        groups = [await InfraService().get_group_by_id(group_id)]
 
     return list(map(lambda x: GroupResponse(**x.to_dict()), groups))
 
@@ -57,7 +59,7 @@ async def create_new_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    new_group = await UserService().create_group(group_name)
+    new_group = await InfraService().create_group(group_name)
     return GroupResponse(**new_group.to_dict())
 
 
@@ -68,7 +70,7 @@ async def create_new_semester(
 ) -> SemesterResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    new_semester = await UserService().create_semester(semester_name)
+    new_semester = await InfraService().create_semester(semester_name)
     return SemesterResponse(**new_semester.to_dict())
 
 
@@ -80,7 +82,7 @@ async def edit_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    group = await UserService().edit_group(group_id, new_group_name)
+    group = await InfraService().edit_group(group_id, new_group_name)
     return GroupResponse(**group.to_dict())
 
 
@@ -92,7 +94,7 @@ async def edit_semester(
 ) -> SemesterResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    semester = await UserService().edit_semester(semester_id, new_semester_name)
+    semester = await InfraService().edit_semester(semester_id, new_semester_name)
     return SemesterResponse(**semester.to_dict())
 
 
@@ -116,7 +118,7 @@ async def add_student_to_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    group = await UserService().add_student_to_group(user_id, group_id)
+    group = await OperationService().add_student_to_group(user_id, group_id)
     return GroupResponse(**group.to_dict())
 
 
@@ -127,7 +129,7 @@ async def delete_group(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    await UserService().delete_group(group_id)
+    await InfraService().delete_group(group_id)
     return SuccessfulResponse(success="Group has been successful delete!")
 
 
@@ -138,7 +140,7 @@ async def delete_semester(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, Roles.admin)
 
-    await UserService().delete_semester(semester_id)
+    await InfraService().delete_semester(semester_id)
     return SuccessfulResponse(success="Semester has been successful delete!")
 
 

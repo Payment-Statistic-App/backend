@@ -7,11 +7,12 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from src.routers.student_routers import router as student_router
+from src.routers.admin_routers import router as admin_router
+from src.services.user_service import UserService
+from src.services.infra_service import InfraService
 from src.models import User, Roles
-from src.users.routers.student_routers import router as student_router
-from src.users.routers.admin_routers import router as admin_router
 from src.schemas import Token, SemesterResponse
-from src.users.services import UserService
 
 from utils import auth_settings
 
@@ -35,7 +36,7 @@ async def ping_pong():
 
 @app.get("/show_semesters", response_model=List[SemesterResponse])
 async def get_semesters_list() -> List[SemesterResponse]:
-    semesters = await UserService().get_all_semesters()
+    semesters = await InfraService().get_all_semesters()
     return list(map(lambda x: SemesterResponse(**x.to_dict()), semesters))
 
 
