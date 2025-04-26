@@ -25,7 +25,7 @@ class Semester(Base):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "id": str(self.id),
+            "id": self.id,
             "name": self.name,
             "created_at": self.created_at.isoformat(),
         }
@@ -43,10 +43,33 @@ class Group(Base):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "id": str(self.id),
+            "id": self.id,
             "name": self.name,
             "created_at": self.created_at.isoformat(),
             "users": [user.to_dict() for user in self.users]
+        }
+
+
+class Transaction(Base):
+    __tablename__ = "transactions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    semester_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("semesters.id", ondelete="CASCADE"))
+    amount: Mapped[float] = mapped_column()
+    comment: Mapped[str] = mapped_column()
+    created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="transactions", uselist=False)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "semester_id": self.semester_id,
+            "amount": self.amount,
+            "comment": self.comment,
+            "created_at": self.created_at.isoformat(),
         }
 
 
@@ -64,11 +87,13 @@ class User(Base):
     password_hash: Mapped[bytes] = mapped_column()
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
+    transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
+                                                             lazy="selectin", cascade="all, delete-orphan")
     group: Mapped["Group"] = relationship(back_populates="users", uselist=False)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "id": str(self.id),
+            "id": self.id,
             "name": self.name,
             "surname": self.surname,
             "patronymic": self.patronymic,
@@ -77,4 +102,5 @@ class User(Base):
             "role": self.role,
             "login": self.login,
             "created_at": self.created_at.isoformat(),
+            "transactions": [transaction.to_dict() for transaction in self.transactions]
         }

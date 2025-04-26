@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Optional, List
 
@@ -62,3 +63,20 @@ class GroupResponse(BaseModel):
 class SemesterResponse(BaseModel):
     id: uuid.UUID
     name: str
+
+
+class TransactionCreate(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    semester_id: uuid.UUID
+    amount: float
+    comment: str
+
+
+class TransactionResponse(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    semester_id: uuid.UUID
+    amount: float
+    comment: str
+    created_at: datetime.datetime
