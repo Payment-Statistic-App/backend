@@ -10,6 +10,25 @@ class SuccessfulResponse(BaseModel):
     success: str = "ok"
 
 
+class SemesterResponse(BaseModel):
+    id: uuid.UUID
+    name: str
+
+
+class TransactionCreate(BaseModel):
+    semester_id: uuid.UUID
+    amount: float
+
+
+class TransactionResponse(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    semester_id: uuid.UUID
+    amount: float
+    comment: str
+    created_at: datetime.datetime
+
+
 class TokenData(BaseModel):
     uid: uuid.UUID | None = None
 
@@ -52,31 +71,10 @@ class UserResponse(BaseModel):
     role: Roles
     phone: str
     login: str
+    transactions: List[TransactionResponse]
 
 
 class GroupResponse(BaseModel):
     id: uuid.UUID
     name: str
     users: List[UserResponse]
-
-
-class SemesterResponse(BaseModel):
-    id: uuid.UUID
-    name: str
-
-
-class TransactionCreate(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    semester_id: uuid.UUID
-    amount: float
-    comment: str
-
-
-class TransactionResponse(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    semester_id: uuid.UUID
-    amount: float
-    comment: str
-    created_at: datetime.datetime

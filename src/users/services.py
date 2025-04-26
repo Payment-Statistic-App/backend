@@ -10,9 +10,9 @@ from config_data import constants
 from config_data.config import Config, load_config
 from utils.auth_settings import validate_password, decode_jwt, encode_jwt
 
-from src.users.models import User, Roles, Group, Semester
+from src.users.models import User, Roles, Group, Semester, Transaction
 from src.users.repositories import UserRepository
-from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit
+from src.users.schemas import UserCreate, TokenData, UserLogin, UserEdit, TransactionCreate
 from src.users.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException
 
 http_bearer = HTTPBearer()
@@ -160,6 +160,10 @@ class UserService:
         if await self.repository.get_group_by_name(group_name):
             raise AlreadyExistException(constants.ALREADY_EXIST_GROUP_MESSAGE)
         return await self.repository.create_group(group_name)
+
+    async def create_transaction(self, user: User, new_transaction: TransactionCreate) -> Transaction:
+        semester = await self.get_semester_by_id(new_transaction.semester_id)
+        return await self.repository.create_transaction(user.id, new_transaction, semester.name)
 
     async def create_semester(self, semester_name: str) -> Semester:
         if await self.repository.get_semester_by_name(semester_name):

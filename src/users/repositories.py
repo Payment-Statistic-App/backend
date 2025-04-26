@@ -5,28 +5,13 @@ from sqlalchemy import insert, select, delete, update
 
 from utils import auth_settings
 from src.database import async_session
+from config_data import constants
 
-from src.users.models import User, Group, Roles, Semester
-from src.users.schemas import UserCreate, UserEdit
+from src.users.models import User, Group, Roles, Semester, Transaction
+from src.users.schemas import UserCreate, UserEdit, TransactionCreate
 
 
 class UserRepository:
-    async def create_user(self, new_user: UserCreate) -> User:
-        password = new_user.password
-        user_dc = new_user.dict(exclude={"password"})
-        user_dc["password_hash"] = auth_settings.hash_password(password)
-        user_dc["id"] = uuid.uuid4()
-
-        async with async_session() as session:
-            stmt = insert(User).values(**user_dc)
-            await session.execute(stmt)
-            await session.commit()
-
-            query = select(User).where(User.id == user_dc["id"])
-            result = await session.execute(query)
-            user = result.scalars().first()
-
-        return user
 
     async def get_user_by_login(self, login: str) -> Optional[User]:
         async with async_session() as session:
@@ -50,6 +35,14 @@ class UserRepository:
             user = result.scalars().first()
 
         return user
+
+    async def get_transaction_by_id(self, transaction_id: uuid.UUID) -> Transaction:
+        async with async_session() as session:
+            query = select(Transaction).where(Transaction.id == transaction_id)
+            result = await session.execute(query)
+            transaction = result.scalars().first()
+
+        return transaction
 
     async def get_group_by_name(self, group_name: str) -> Group:
         async with async_session() as session:
@@ -82,6 +75,34 @@ class UserRepository:
             semester = result.scalars().first()
 
         return semester
+
+    async def create_user(self, new_user: UserCreate) -> User:
+        password = new_user.password
+        user_dc = new_user.dict(exclude={"password"})
+        user_dc["password_hash"] = auth_settings.hash_password(password)
+        user_dc["id"] = uuid.uuid4()
+
+        async with async_session() as session:
+            stmt = insert(User).values(**user_dc)
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_user_by_id(user_dc["id"])
+
+    async def create_transaction(self, user_id: uuid.UUID, new_transaction: TransactionCreate, semester_name: str):
+        transaction_dc = new_transaction.dict()
+        transaction_dc["id"] = uuid.uuid4()
+        transaction_dc["user_id"] = user_id
+        transaction_dc["comment"] = constants.TRANSACTION_COMMENT.format(
+            semester_name=semester_name, amount=new_transaction.amount
+        )
+
+        async with async_session() as session:
+            stmt = insert(Transaction).values(**transaction_dc)
+            await session.execute(stmt)
+            await session.commit()
+
+        return await self.get_transaction_by_id(transaction_dc["id"])
 
     async def create_group(self, group_name: str) -> Group:
         async with async_session() as session:
