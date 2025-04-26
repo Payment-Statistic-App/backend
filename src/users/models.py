@@ -16,6 +16,14 @@ class Roles(Enum):
     admin = "admin"
 
 
+class Semester(Base):
+    __tablename__ = "semesters"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(unique=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+
+
 class Group(Base):
     __tablename__ = "groups"
 
