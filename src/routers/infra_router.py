@@ -1,29 +1,20 @@
 import uuid
+
 from typing import Annotated, Optional, List
 from fastapi import APIRouter, Depends, Query
 
 from src.models import User, Roles
-from src.schemas import UserCreate, GroupResponse, UserResponse, SuccessfulResponse, UserEdit, SemesterResponse
+from src.schemas import GroupResponse, SuccessfulResponse, SemesterResponse
 from src.services.user_service import UserService
 from src.services.infra_service import InfraService
-from src.services.operation_service import OperationService
 
-router = APIRouter(tags=["admin"], prefix="/admin")
+router = APIRouter(tags=["infra"], prefix="/infra")
 
 
-@router.get("/students", response_model=List[UserResponse])
-async def get_students(
-        current_user: Annotated[User, Depends(UserService().get_current_user)],
-        student_id: Optional[uuid.UUID] = Query(None, description="student id for get only one student"),
-) -> List[UserResponse]:
-    UserService().validate_role(current_user.role, (Roles.admin, Roles.observer, Roles.accountant))
-
-    if student_id is None:
-        students = await UserService().get_all_students()
-    else:
-        students = [await UserService().get_student_by_id(student_id)]
-
-    return list(map(lambda x: UserResponse(**x.to_dict()), students))
+@router.get("/semesters", response_model=List[SemesterResponse])
+async def get_semesters_list() -> List[SemesterResponse]:
+    semesters = await InfraService().get_all_semesters()
+    return list(map(lambda x: SemesterResponse(**x.to_dict()), semesters))
 
 
 @router.get("/groups", response_model=List[GroupResponse])
@@ -41,18 +32,7 @@ async def get_groups(
     return list(map(lambda x: GroupResponse(**x.to_dict()), groups))
 
 
-@router.post("/create_user", response_model=UserResponse)
-async def create_new_user(
-        user_create: UserCreate,
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
-) -> UserResponse:
-    UserService().validate_role(current_user.role, (Roles.admin,))
-
-    user = await UserService().create_user(user_create)
-    return UserResponse(**user.to_dict())
-
-
-@router.post("/create_group", response_model=GroupResponse)
+@router.post("/new_group", response_model=GroupResponse)
 async def create_new_group(
         group_name: str,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
@@ -63,7 +43,7 @@ async def create_new_group(
     return GroupResponse(**new_group.to_dict())
 
 
-@router.post("/create_semester", response_model=SemesterResponse)
+@router.post("/new_semester", response_model=SemesterResponse)
 async def create_new_semester(
         semester_name: str,
         current_user: Annotated[User, Depends(UserService().get_current_user)]
@@ -98,30 +78,6 @@ async def edit_semester(
     return SemesterResponse(**semester.to_dict())
 
 
-@router.put("/edit_user/{user_id}", response_model=UserResponse)
-async def edit_user(
-        current_user: Annotated[User, Depends(UserService().get_current_user)],
-        user_id: uuid.UUID,
-        new_user_data: UserEdit
-) -> UserResponse:
-    UserService().validate_role(current_user.role, (Roles.admin,))
-
-    user = await UserService().edit_user(user_id, new_user_data)
-    return UserResponse(**user.to_dict())
-
-
-@router.put("/add_to_group", response_model=GroupResponse)
-async def add_student_to_group(
-        group_id: uuid.UUID,
-        user_id: uuid.UUID,
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
-) -> GroupResponse:
-    UserService().validate_role(current_user.role, (Roles.admin,))
-
-    group = await OperationService().add_student_to_group(user_id, group_id)
-    return GroupResponse(**group.to_dict())
-
-
 @router.delete("/delete_group/{group_id}", response_model=SuccessfulResponse)
 async def delete_group(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
@@ -142,14 +98,3 @@ async def delete_semester(
 
     await InfraService().delete_semester(semester_id)
     return SuccessfulResponse(success="Semester has been successful delete!")
-
-
-@router.delete("/delete_user/{user_id}", response_model=SuccessfulResponse)
-async def delete_user(
-        current_user: Annotated[User, Depends(UserService().get_current_user)],
-        user_id: uuid.UUID,
-) -> SuccessfulResponse:
-    UserService().validate_role(current_user.role, (Roles.admin,))
-
-    await UserService().delete_user(user_id)
-    return SuccessfulResponse(success="User has been successful delete!")
