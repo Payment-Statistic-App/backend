@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Payment-service",
+    title="Students payment service",
     lifespan=lifespan
 )
 
