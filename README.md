@@ -46,8 +46,9 @@ Authorization: Bearer {<YOUR_TOKEN>}
 
 ### 💰 Operations
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/operations/new_transaction` | Record new semester payment | ✅ (student) |
-| `PUT` | `/operations/add_to_group` | Add student to group | ✅ (admin) |
+| Method   | Endpoint                        | Description                 | Auth Required |
+|----------|---------------------------------|-----------------------------|---------------|
+| `POST`   | `/operations/new_transaction`   | Record new semester payment | ✅ (student) |
+| `PUT`    | `/operations/add_to_group`      | Add student to group        | ✅ (admin) |
+| `DELETE` | `/operations/remove_from_group` | Remove_student_from_group   | ✅ (admin) |
 
