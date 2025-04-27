@@ -3,7 +3,7 @@
 REST API for control student tuition fees
 
 ## 📌 Base URL
-`https://energy-cerber.ru`
+`https://api.energy-cerber.ru`
 
 This document provides an overview of the REST API endpoints available in this application. For **detailed information**, including request parameters, request bodies, and API response structures, please refer to the **full API documentation**
 
