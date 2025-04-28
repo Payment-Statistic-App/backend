@@ -57,9 +57,11 @@ class Operation(Base):
             "comment": self.comment,
             "created_at": self.created_at.isoformat(),
             "initiator": {
+                "id": self.initiator.id,
                 "name": self.initiator.name,
                 "surname": self.initiator.surname,
-                "patronymic": self.initiator.patronymic
+                "patronymic": self.initiator.patronymic,
+                "role": self.initiator.role
             }
         }
 

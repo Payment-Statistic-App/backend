@@ -87,9 +87,11 @@ class OperationCreate(BaseModel):
 
 
 class UserOperationsResponse(BaseModel):
+    id: uuid.UUID
     name: str
     surname: str
     patronymic: str
+    role: Roles
 
 
 class OperationResponse(BaseModel):
