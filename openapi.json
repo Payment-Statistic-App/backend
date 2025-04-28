@@ -719,6 +719,36 @@
         }
       }
     },
+    "/operations/show_list": {
+      "get": {
+        "tags": [
+          "operations"
+        ],
+        "summary": "Get Operations List",
+        "operationId": "get_operations_list_operations_show_list_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperationResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Operations List Operations Show List Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/operations/new_transaction": {
       "post": {
         "tags": [
@@ -913,6 +943,55 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "OperationResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/OperationTypes"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "comment": {
+            "type": "string",
+            "title": "Comment"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/UserOperationsResponse"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "user_id",
+          "comment",
+          "created_at",
+          "initiator"
+        ],
+        "title": "OperationResponse"
+      },
+      "OperationTypes": {
+        "type": "string",
+        "enum": [
+          "user",
+          "group",
+          "semester",
+          "payment"
+        ],
+        "title": "OperationTypes"
       },
       "Roles": {
         "type": "string",
@@ -1135,6 +1214,29 @@
           "role"
         ],
         "title": "UserLogin"
+      },
+      "UserOperationsResponse": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "surname": {
+            "type": "string",
+            "title": "Surname"
+          },
+          "patronymic": {
+            "type": "string",
+            "title": "Patronymic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "surname",
+          "patronymic"
+        ],
+        "title": "UserOperationsResponse"
       },
       "UserResponse": {
         "properties": {

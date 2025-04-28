@@ -28,7 +28,7 @@ async def new_semester_payment(
 ) -> TransactionResponse:
     UserService().validate_role(current_user.role, (Roles.student,))
 
-    transaction = await OperationService().create_transaction(current_user, new_transaction)
+    transaction = await OperationService().create_transaction(current_user, new_transaction, current_user.id)
     return TransactionResponse(**transaction.to_dict())
 
 
@@ -40,7 +40,7 @@ async def add_student_to_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    group = await OperationService().add_student_to_group(user_id, group_id)
+    group = await OperationService().add_student_to_group(user_id, group_id, current_user.id)
     return GroupResponse(**group.to_dict())
 
 
