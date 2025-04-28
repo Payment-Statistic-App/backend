@@ -3,7 +3,7 @@ import uuid
 from typing import Optional, List
 
 from pydantic import BaseModel
-from src.models import Roles
+from src.models import Roles, OperationTypes
 
 
 class SuccessfulResponse(BaseModel):
@@ -78,3 +78,18 @@ class GroupResponse(BaseModel):
     id: uuid.UUID
     name: str
     users: List[UserResponse]
+
+
+class OperationCreate:
+    type: OperationTypes
+    user_id: uuid.UUID
+    comment: str
+
+
+class OperationResponse:
+    id: uuid.UUID
+    type: OperationTypes
+    user_id: uuid.UUID
+    comment: str
+    created_at: datetime.datetime
+    user: UserResponse

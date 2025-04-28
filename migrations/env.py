@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.database import Base
 
 from alembic import context
-from src.models import User, Group, Semester, Transaction, Roles
+from src.models import User, Group, Semester, Transaction, Operation, OperationTypes, Roles
 
 from config_data.config import Config, load_config
 

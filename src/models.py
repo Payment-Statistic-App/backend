@@ -16,6 +16,13 @@ class Roles(Enum):
     admin = "admin"
 
 
+class OperationTypes(Enum):
+    user = "user"
+    group = "group"
+    semester = "semester"
+    payment = "payment"
+
+
 class Semester(Base):
     __tablename__ = "semesters"
 
@@ -28,6 +35,28 @@ class Semester(Base):
             "id": self.id,
             "name": self.name,
             "created_at": self.created_at.isoformat(),
+        }
+
+
+class Operation(Base):
+    __tablename__ = "oparations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    type: Mapped[OperationTypes] = mapped_column()
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    comment: Mapped[str] = mapped_column(nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
+
+    user: Mapped["User"] = relationship(back_populates="transactions", uselist=False)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "type": self.type,
+            "user_id": self.user_id,
+            "comment": self.comment,
+            "created_at": self.created_at.isoformat(),
+            "user": self.user.to_dict()
         }
 
 
@@ -87,9 +116,11 @@ class User(Base):
     password_hash: Mapped[bytes] = mapped_column()
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
+    group: Mapped["Group"] = relationship(back_populates="users", uselist=False)
     transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
                                                              lazy="selectin", cascade="all, delete-orphan")
-    group: Mapped["Group"] = relationship(back_populates="users", uselist=False)
+    operations: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
+                                                           lazy="selectin", cascade="all, delete-orphan")
 
     def to_dict(self) -> Dict[str, Any]:
         return {
