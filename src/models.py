@@ -47,7 +47,7 @@ class Operation(Base):
     comment: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
-    user: Mapped["User"] = relationship(back_populates="operations", uselist=False)
+    initiator: Mapped["User"] = relationship(back_populates="operations", uselist=False, lazy="selectin")
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -56,7 +56,11 @@ class Operation(Base):
             "user_id": self.user_id,
             "comment": self.comment,
             "created_at": self.created_at.isoformat(),
-            "user": self.user.to_dict()
+            "initiator": {
+                "name": self.initiator.name,
+                "surname": self.initiator.surname,
+                "patronymic": self.initiator.patronymic
+            }
         }
 
 
@@ -119,8 +123,8 @@ class User(Base):
     group: Mapped["Group"] = relationship(back_populates="users", uselist=False)
     transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
                                                              lazy="selectin", cascade="all, delete-orphan")
-    operations: Mapped[List["Operation"]] = relationship(back_populates="user", uselist=True,
-                                                           lazy="selectin", cascade="all, delete-orphan")
+    operations: Mapped[List["Operation"]] = relationship(back_populates="initiator", uselist=True,
+                                                         lazy="selectin", cascade="all, delete-orphan")
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -134,5 +138,4 @@ class User(Base):
             "login": self.login,
             "created_at": self.created_at.isoformat(),
             "transactions": [transaction.to_dict() for transaction in self.transactions],
-            "operations": [operation.to_dict() for operation in self.operations]
         }

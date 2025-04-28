@@ -11,7 +11,7 @@ from src.services.operation_service import OperationService
 router = APIRouter(tags=["operations"], prefix="/operations")
 
 
-@router.get("/show_list", response_model=OperationResponse)
+@router.get("/show_list", response_model=List[OperationResponse])
 async def get_operations_list(
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> List[OperationResponse]:

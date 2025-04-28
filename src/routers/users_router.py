@@ -41,7 +41,7 @@ async def create_new_user(
 ) -> UserResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    user = await UserService().create_user(user_create)
+    user = await UserService().create_user(user_create, current_user.id)
     return UserResponse(**user.to_dict())
 
 

@@ -32,10 +32,9 @@ class OperationsRepository:
         async with async_session() as session:
             query = select(Operation)
             result = await session.execute(query)
-            operations = result.scalars().all
+            operations = result.scalars().all()
 
         return operations
-
 
     async def create_transaction(self, user_id: uuid.UUID, new_transaction: TransactionCreate, semester_name: str):
         transaction_dc = new_transaction.dict()

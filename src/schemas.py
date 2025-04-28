@@ -72,7 +72,6 @@ class UserResponse(BaseModel):
     phone: str
     login: str
     transactions: List[TransactionResponse]
-    operations: List["OperationResponse"]
 
 
 class GroupResponse(BaseModel):
@@ -87,10 +86,16 @@ class OperationCreate(BaseModel):
     comment: str
 
 
+class UserOperationsResponse(BaseModel):
+    name: str
+    surname: str
+    patronymic: str
+
+
 class OperationResponse(BaseModel):
     id: uuid.UUID
     type: OperationTypes
     user_id: uuid.UUID
     comment: str
     created_at: datetime.datetime
-    user: UserResponse
+    initiator: UserOperationsResponse

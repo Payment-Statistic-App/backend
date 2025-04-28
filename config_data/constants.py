@@ -12,3 +12,6 @@ TRANSACTION_COMMENT = "Оплата обучения за семестр {semest
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
+
+# OPERATION COMMENTS
+CREATE_USER_COMMENT = "Создан новый пользователь {name} {surname} {patronymic} с ролью {role}"
