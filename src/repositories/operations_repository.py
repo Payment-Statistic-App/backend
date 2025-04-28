@@ -41,3 +41,9 @@ class OperationsRepository:
             await session.commit()
 
         return await InfraRepository().get_group_by_id(group_id)
+
+    async def remove_user_from_group(self, user_id: uuid.UUID) -> None:
+        async with async_session() as session:
+            stmt = update(User).where(User.id == user_id).values(group_id=None)
+            await session.execute(stmt)
+            await session.commit()

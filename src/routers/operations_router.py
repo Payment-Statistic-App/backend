@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.models import User, Roles
-from src.schemas import GroupResponse, TransactionResponse, TransactionCreate
+from src.schemas import GroupResponse, TransactionResponse, TransactionCreate, SuccessfulResponse
 from src.services.user_service import UserService
 from src.services.operation_service import OperationService
 
@@ -32,3 +32,14 @@ async def add_student_to_group(
 
     group = await OperationService().add_student_to_group(user_id, group_id)
     return GroupResponse(**group.to_dict())
+
+
+@router.delete("/remove_from_group", response_model=SuccessfulResponse)
+async def remove_student_from_group(
+        user_id: uuid.UUID,
+        current_user: Annotated[User, Depends(UserService().get_current_user)]
+) -> SuccessfulResponse:
+    UserService().validate_role(current_user.role, (Roles.admin,))
+
+    await OperationService().remove_student_from_group(user_id)
+    return SuccessfulResponse(success="Student successfully delete from group!")
