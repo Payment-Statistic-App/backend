@@ -39,7 +39,7 @@ class Semester(Base):
 
 
 class Operation(Base):
-    __tablename__ = "oparations"
+    __tablename__ = "operations"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     type: Mapped[OperationTypes] = mapped_column()
@@ -47,7 +47,7 @@ class Operation(Base):
     comment: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(default=func.now())
 
-    user: Mapped["User"] = relationship(back_populates="transactions", uselist=False)
+    user: Mapped["User"] = relationship(back_populates="operations", uselist=False)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -119,7 +119,7 @@ class User(Base):
     group: Mapped["Group"] = relationship(back_populates="users", uselist=False)
     transactions: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
                                                              lazy="selectin", cascade="all, delete-orphan")
-    operations: Mapped[List["Transaction"]] = relationship(back_populates="user", uselist=True,
+    operations: Mapped[List["Operation"]] = relationship(back_populates="user", uselist=True,
                                                            lazy="selectin", cascade="all, delete-orphan")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -133,5 +133,6 @@ class User(Base):
             "role": self.role,
             "login": self.login,
             "created_at": self.created_at.isoformat(),
-            "transactions": [transaction.to_dict() for transaction in self.transactions]
+            "transactions": [transaction.to_dict() for transaction in self.transactions],
+            "operations": [operation.to_dict() for operation in self.operations]
         }

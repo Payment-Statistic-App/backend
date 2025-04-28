@@ -1,8 +1,9 @@
 import uuid
+from typing import List
 
 from config_data import constants
 from src.exceptions import NotFoundException
-from src.models import User, Group, Transaction
+from src.models import User, Group, Transaction, Operation
 from src.repositories import (
     user_repository as user_repo,
     infra_repository as infra_repo,
@@ -17,6 +18,9 @@ class OperationService:
     user_repository = user_repo.UserRepository()
     infra_repository = infra_repo.InfraRepository()
     operations_repository = operations_repo.OperationsRepository()
+
+    async def get_all_operations(self) -> List[Operation]:
+        return await self.get_all_operations()
 
     async def create_transaction(self, user: User, new_transaction: TransactionCreate) -> Transaction:
         semester = await InfraService().get_semester_by_id(new_transaction.semester_id)
