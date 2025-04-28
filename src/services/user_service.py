@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from src.models import User, Roles
+from src.models import User, Roles, OperationTypes
 from src.schemas import UserCreate, TokenData, UserLogin, UserEdit
 from src.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException, \
     AccessException
@@ -90,20 +90,41 @@ class UserService:
     ) -> User:
         return await self.validate_user(expected_token_type=constants.ACCESS_TOKEN_TYPE, token=token.credentials)
 
-    async def create_user(self, user: UserCreate) -> User:
+    async def create_user(self, user: UserCreate, initiator_id: uuid.UUID) -> User:
         if await self.user_repository.get_user_by_login(user.login) is not None:
             raise AlreadyExistException(constants.ALREADY_EXIST_USER_MESSAGE)
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.CREATE_USER_COMMENT.format(
+                name=user.name, surname=user.surname, patronymic=user.patronymic, role=user.role.value
+            )
+        )
 
         return await self.user_repository.create_user(user)
 
-    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
+    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit, initiator_id: uuid.UUID) -> User:
         user = await self.get_user_by_id(user_id)
         if user is None:
             raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.EDIT_USER_COMMENT.format(
+                name=user.name, surname=user.surname, patronymic=user.patronymic
+            )
+        )
         return await self.user_repository.edit_user(user.id, new_user_data)
 
-    async def delete_user(self, user_id: uuid.UUID) -> None:
+    async def delete_user(self, user_id: uuid.UUID, initiator_id: uuid.UUID) -> None:
         user = await self.get_user_by_id(user_id)
         if user is None:
             raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.DELETE_USER_COMMENT.format(
+                name=user.name, surname=user.surname, patronymic=user.patronymic, role=user.role.value
+            )
+        )
         return await self.user_repository.delete_user(user_id)

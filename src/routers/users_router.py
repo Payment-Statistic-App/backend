@@ -41,7 +41,7 @@ async def create_new_user(
 ) -> UserResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    user = await UserService().create_user(user_create)
+    user = await UserService().create_user(user_create, current_user.id)
     return UserResponse(**user.to_dict())
 
 
@@ -68,7 +68,7 @@ async def edit_user(
 ) -> UserResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    user = await UserService().edit_user(user_id, new_user_data)
+    user = await UserService().edit_user(user_id, new_user_data, current_user.id)
     return UserResponse(**user.to_dict())
 
 
@@ -79,5 +79,5 @@ async def delete_user(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    await UserService().delete_user(user_id)
+    await UserService().delete_user(user_id, current_user.id)
     return SuccessfulResponse(success="User has been successful delete!")

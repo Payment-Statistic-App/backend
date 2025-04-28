@@ -12,3 +12,17 @@ TRANSACTION_COMMENT = "Оплата обучения за семестр {semest
 TOKEN_TYPE_FIELD = "type"
 ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
+
+# OPERATION COMMENTS
+CREATE_USER_COMMENT = "Создан новый пользователь {name} {surname} {patronymic} с ролью {role}"
+EDIT_USER_COMMENT = "Изменён пользователь {name} {surname} {patronymic}"
+DELETE_USER_COMMENT = "Удалён пользователь {name} {surname} {patronymic}"
+PAYMENT_COMMENT = "Пользователь {name} {surname} {patronymic} выполнил платёж за обучение на сумму {amount}"
+ADD_TO_GROUP_COMMENT = "Пользователь {name} {surname} {patronymic} добавлен в группу {group_name}"
+REMOVE_FROM_GROUP_COMMENT = "Для пользователя {name} {surname} {patronymic} удалена группа"
+CREATE_GROUP_COMMENT = "Создана группа {group_name}"
+CREATE_SEMESTER_COMMENT = "Создан семестр {semester_name}"
+EDIT_GROUP_COMMENT = "Изменено название группы {name_before} на {name_after}"
+EDIT_SEMESTER_COMMENT = "Изменено название семестра {name_before} на {name_after}"
+DELETE_GROUP_COMMENT = "Удалена группа {group_name}"
+DELETE_SEMESTER_COMMENT = "Удалён семестр {semester_name}"
