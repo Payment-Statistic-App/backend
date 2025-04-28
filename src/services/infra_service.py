@@ -95,6 +95,6 @@ class InfraService:
         await self.operations_repository.create_operation(
             operation_type=OperationTypes.semester,
             user_id=initiator_id,
-            comment=constants.DELETE_SEMESTER_COMMENT.format(group_name=semester.name)
+            comment=constants.DELETE_SEMESTER_COMMENT.format(semester_name=semester.name)
         )
         return await self.infra_repository.delete_semester(semester.id)
