@@ -49,6 +49,36 @@
         ]
       }
     },
+    "/users/all": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get All Users",
+        "operationId": "get_all_users_users_all_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get All Users Users All Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/users/students": {
       "get": {
         "tags": [
@@ -1217,6 +1247,11 @@
       },
       "UserOperationsResponse": {
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
           "name": {
             "type": "string",
             "title": "Name"
@@ -1228,13 +1263,18 @@
           "patronymic": {
             "type": "string",
             "title": "Patronymic"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Roles"
           }
         },
         "type": "object",
         "required": [
+          "id",
           "name",
           "surname",
-          "patronymic"
+          "patronymic",
+          "role"
         ],
         "title": "UserOperationsResponse"
       },

@@ -78,6 +78,9 @@ class UserService:
     async def get_all_students(self) -> List[User]:
         return await self.user_repository.get_all_students()
 
+    async def get_all_users(self) -> List[User]:
+        return await self.user_repository.get_all_users()
+
     async def get_current_user_for_refresh(
             self,
             token: HTTPAuthorizationCredentials = Depends(http_bearer)

@@ -19,6 +19,16 @@ async def login_for_access_token(
     return UserResponse(**current_user.to_dict())
 
 
+@router.get("/all", response_model=List[UserResponse])
+async def get_all_users(
+        current_user: Annotated[User, Depends(UserService().get_current_user)],
+) -> List[UserResponse]:
+    UserService().validate_role(current_user.role, (Roles.admin, Roles.observer, Roles.accountant))
+
+    users = await UserService().get_all_users()
+    return list(map(lambda x: UserResponse(**x.to_dict()), users))
+
+
 @router.get("/students", response_model=List[UserResponse])
 async def get_students(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
