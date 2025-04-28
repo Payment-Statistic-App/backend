@@ -39,7 +39,7 @@ async def create_new_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    new_group = await InfraService().create_group(group_name)
+    new_group = await InfraService().create_group(group_name, current_user.id)
     return GroupResponse(**new_group.to_dict())
 
 
@@ -50,7 +50,7 @@ async def create_new_semester(
 ) -> SemesterResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    new_semester = await InfraService().create_semester(semester_name)
+    new_semester = await InfraService().create_semester(semester_name, current_user.id)
     return SemesterResponse(**new_semester.to_dict())
 
 
@@ -62,7 +62,7 @@ async def edit_group(
 ) -> GroupResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    group = await InfraService().edit_group(group_id, new_group_name)
+    group = await InfraService().edit_group(group_id, new_group_name, current_user.id)
     return GroupResponse(**group.to_dict())
 
 
@@ -74,7 +74,7 @@ async def edit_semester(
 ) -> SemesterResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    semester = await InfraService().edit_semester(semester_id, new_semester_name)
+    semester = await InfraService().edit_semester(semester_id, new_semester_name, current_user.id)
     return SemesterResponse(**semester.to_dict())
 
 
@@ -85,7 +85,7 @@ async def delete_group(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    await InfraService().delete_group(group_id)
+    await InfraService().delete_group(group_id, current_user.id)
     return SuccessfulResponse(success="Group has been successful delete!")
 
 
@@ -96,5 +96,5 @@ async def delete_semester(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    await InfraService().delete_semester(semester_id)
+    await InfraService().delete_semester(semester_id, current_user.id)
     return SuccessfulResponse(success="Semester has been successful delete!")

@@ -103,14 +103,28 @@ class UserService:
 
         return await self.user_repository.create_user(user)
 
-    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit) -> User:
+    async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit, initiator_id: uuid.UUID) -> User:
         user = await self.get_user_by_id(user_id)
         if user is None:
             raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.EDIT_USER_COMMENT.format(
+                name=user.name, surname=user.surname, patronymic=user.patronymic
+            )
+        )
         return await self.user_repository.edit_user(user.id, new_user_data)
 
-    async def delete_user(self, user_id: uuid.UUID) -> None:
+    async def delete_user(self, user_id: uuid.UUID, initiator_id: uuid.UUID) -> None:
         user = await self.get_user_by_id(user_id)
         if user is None:
             raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.DELETE_USER_COMMENT.format(
+                name=user.name, surname=user.surname, patronymic=user.patronymic, role=user.role.value
+            )
+        )
         return await self.user_repository.delete_user(user_id)

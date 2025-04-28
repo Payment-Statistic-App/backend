@@ -51,5 +51,5 @@ async def remove_student_from_group(
 ) -> SuccessfulResponse:
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    await OperationService().remove_student_from_group(user_id)
+    await OperationService().remove_student_from_group(user_id, current_user.id)
     return SuccessfulResponse(success="Student successfully delete from group!")
