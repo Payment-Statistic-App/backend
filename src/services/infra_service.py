@@ -6,7 +6,8 @@ from src.models import Group, Semester, OperationTypes
 from src.exceptions import AlreadyExistException, NotFoundException
 from src.repositories import (
     infra_repository as infra_repo,
-    operations_repository as operations_repo
+    operations_repository as operations_repo,
+    user_repository as users_repo
 )
 
 from config_data import constants
@@ -15,6 +16,7 @@ from config_data import constants
 class InfraService:
     infra_repository = infra_repo.InfraRepository()
     operations_repository = operations_repo.OperationsRepository()
+    users_repository = users_repo.UserRepository()
 
     async def get_group_by_id(self, group_id: uuid.UUID) -> Group:
         group = await self.infra_repository.get_group_by_id(group_id)
@@ -83,11 +85,14 @@ class InfraService:
 
     async def delete_group(self, group_id: uuid.UUID, initiator_id: uuid.UUID) -> None:
         group = await self.get_group_by_id(group_id)
+        await self.users_repository.delete_group_for_users_by_id(group.id)
+
         await self.operations_repository.create_operation(
             operation_type=OperationTypes.group,
             user_id=initiator_id,
             comment=constants.DELETE_GROUP_COMMENT.format(group_name=group.name)
         )
+
         return await self.infra_repository.delete_group(group.id)
 
     async def delete_semester(self, semester_id: uuid.UUID, initiator_id: uuid.UUID) -> None:

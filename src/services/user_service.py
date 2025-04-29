@@ -123,6 +123,9 @@ class UserService:
         user = await self.get_user_by_id(user_id)
         if user is None:
             raise NotFoundException(constants.USER_NOT_FOUND_MESSAGE)
+        if user.role == Roles.admin:
+            raise AccessException()
+
         await self.operations_repository.create_operation(
             operation_type=OperationTypes.user,
             user_id=initiator_id,

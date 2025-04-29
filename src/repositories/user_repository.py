@@ -42,6 +42,12 @@ class UserRepository:
 
         return students
 
+    async def delete_group_for_users_by_id(self, group_id: uuid.UUID) -> None:
+        async with async_session() as session:
+            stmt = update(User).where(User.group_id == group_id).values(group_id=None)
+            await session.execute(stmt)
+            await session.commit()
+
     async def create_user(self, new_user: UserCreate) -> User:
         password = new_user.password
         user_dc = new_user.dict(exclude={"password"})
