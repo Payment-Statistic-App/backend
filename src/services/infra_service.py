@@ -3,7 +3,7 @@ import uuid
 from typing import List
 
 from src.models import Group, Semester, OperationTypes
-from src.exceptions import AlreadyExistException, NotFoundException
+from src.exceptions import AlreadyExistException, NotFoundException, AccessException
 from src.repositories import (
     infra_repository as infra_repo,
     operations_repository as operations_repo,
@@ -61,6 +61,9 @@ class InfraService:
         return await self.infra_repository.create_semester(semester_name)
 
     async def edit_group(self, group_id: uuid.UUID, new_group_name: str, initiator_id: uuid.UUID) -> Group:
+        if await self.infra_repository.get_group_by_name(new_group_name):
+            raise AccessException()
+
         group = await self.get_group_by_id(group_id)
         await self.operations_repository.create_operation(
             operation_type=OperationTypes.group,
@@ -72,6 +75,9 @@ class InfraService:
         return await self.infra_repository.edit_group(group.id, new_group_name)
 
     async def edit_semester(self, semester_id: uuid.UUID, new_semester_name: str, initiator_id: uuid.UUID) -> Semester:
+        if await self.infra_repository.get_semester_by_name(new_semester_name):
+            raise AccessException()
+
         semester = await self.get_semester_by_id(semester_id)
         await self.operations_repository.create_operation(
             operation_type=OperationTypes.semester,
