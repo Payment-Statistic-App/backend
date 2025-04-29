@@ -68,6 +68,7 @@ class UserResponse(BaseModel):
     surname: str
     patronymic: str
     group_id: Optional[uuid.UUID] = None
+    group_name: Optional[str] = None
     role: Roles
     phone: str
     login: str

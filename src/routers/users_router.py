@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Query
 from src.models import User, Roles
 from src.schemas import UserResponse, UserCreate, Token, UserEdit, SuccessfulResponse
 from src.services.user_service import UserService
+from src.services.infra_service import InfraService
 
 from utils import auth_settings
 
@@ -16,7 +17,12 @@ router = APIRouter(tags=["users"], prefix="/users")
 async def login_for_access_token(
         current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> UserResponse:
-    return UserResponse(**current_user.to_dict())
+    user_dc = current_user.to_dict()
+    if isinstance(current_user.group_id, uuid.UUID):
+        user_group = await InfraService().get_group_by_id(current_user.group_id)
+        user_dc["group_name"] = user_group.name
+
+    return UserResponse(**user_dc)
 
 
 @router.get("/all", response_model=List[UserResponse])
