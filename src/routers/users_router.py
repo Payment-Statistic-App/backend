@@ -68,7 +68,7 @@ async def load_students_from_xlsx(
 ):
     UserService().validate_role(current_user.role, (Roles.admin,))
 
-    loaded_users = await UserService().load_users_from_file(file)
+    loaded_users = await UserService().load_users_from_file(file, current_user.id)
     return list(map(lambda x: UserResponse(**x.to_dict()), loaded_users))
 
 

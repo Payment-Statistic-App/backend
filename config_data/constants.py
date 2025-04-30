@@ -14,6 +14,7 @@ ACCESS_TOKEN_TYPE = "access"
 REFRESH_TOKEN_TYPE = "refresh"
 
 # OPERATION COMMENTS
+LOAD_USERS_COMMENT = "Загружено {count} пользователей из excel файла"
 CREATE_USER_COMMENT = "Создан новый пользователь {surname} {name} {patronymic} с ролью {role}"
 EDIT_USER_COMMENT = "Изменён пользователь {surname} {name} {patronymic}"
 DELETE_USER_COMMENT = "Удалён пользователь {surname} {name} {patronymic}"

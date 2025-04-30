@@ -106,7 +106,7 @@ class UserService:
 
         return await self.user_repository.create_user(user)
 
-    async def load_users_from_file(self, xlsx_file: UploadFile) -> List[User]:
+    async def load_users_from_file(self, xlsx_file: UploadFile, initiator_id: uuid.UUID) -> List[User]:
         if not xlsx_file.filename.endswith('.xlsx'):
             raise IncorrectFileFormatException()
 
@@ -124,6 +124,12 @@ class UserService:
                 users_create_response.append(new_user)
             except Exception:
                 continue
+
+        await self.operations_repository.create_operation(
+            operation_type=OperationTypes.user,
+            user_id=initiator_id,
+            comment=constants.LOAD_USERS_COMMENT.format(count=len(users_create_response))
+        )
 
         await xlsx_file.close()
 
