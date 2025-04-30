@@ -186,6 +186,56 @@
         ]
       }
     },
+    "/users/load_users": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Load Users From Xlsx",
+        "operationId": "load_users_from_xlsx_users_load_users_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_load_users_from_xlsx_users_load_users_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Load Users From Xlsx Users Load Users Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/users/login": {
       "post": {
         "tags": [
@@ -934,6 +984,20 @@
   },
   "components": {
     "schemas": {
+      "Body_load_users_from_xlsx_users_load_users_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_load_users_from_xlsx_users_load_users_post"
+      },
       "GroupResponse": {
         "properties": {
           "id": {
@@ -1232,16 +1296,12 @@
           "password": {
             "type": "string",
             "title": "Password"
-          },
-          "role": {
-            "$ref": "#/components/schemas/Roles"
           }
         },
         "type": "object",
         "required": [
           "login",
-          "password",
-          "role"
+          "password"
         ],
         "title": "UserLogin"
       },
@@ -1308,6 +1368,17 @@
               }
             ],
             "title": "Group Id"
+          },
+          "group_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Name"
           },
           "role": {
             "$ref": "#/components/schemas/Roles"
