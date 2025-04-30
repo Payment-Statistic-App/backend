@@ -61,8 +61,8 @@ async def create_new_user(
     return UserResponse(**user.to_dict())
 
 
-@router.post("/load_users", response_model=List[UserResponse])
-async def load_users_from_xlsx(
+@router.post("/load_students", response_model=List[UserResponse])
+async def load_students_from_xlsx(
         current_user: Annotated[User, Depends(UserService().get_current_user)],
         file: UploadFile
 ):

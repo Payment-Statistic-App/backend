@@ -186,18 +186,18 @@
         ]
       }
     },
-    "/users/load_users": {
+    "/users/load_students": {
       "post": {
         "tags": [
           "users"
         ],
-        "summary": "Load Users From Xlsx",
-        "operationId": "load_users_from_xlsx_users_load_users_post",
+        "summary": "Load Students From Xlsx",
+        "operationId": "load_students_from_xlsx_users_load_students_post",
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Body_load_users_from_xlsx_users_load_users_post"
+                "$ref": "#/components/schemas/Body_load_students_from_xlsx_users_load_students_post"
               }
             }
           },
@@ -213,7 +213,7 @@
                     "$ref": "#/components/schemas/UserResponse"
                   },
                   "type": "array",
-                  "title": "Response Load Users From Xlsx Users Load Users Post"
+                  "title": "Response Load Students From Xlsx Users Load Students Post"
                 }
               }
             }
@@ -984,7 +984,7 @@
   },
   "components": {
     "schemas": {
-      "Body_load_users_from_xlsx_users_load_users_post": {
+      "Body_load_students_from_xlsx_users_load_students_post": {
         "properties": {
           "file": {
             "type": "string",
@@ -996,7 +996,7 @@
         "required": [
           "file"
         ],
-        "title": "Body_load_users_from_xlsx_users_load_users_post"
+        "title": "Body_load_students_from_xlsx_users_load_students_post"
       },
       "GroupResponse": {
         "properties": {
