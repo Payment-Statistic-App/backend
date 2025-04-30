@@ -11,7 +11,6 @@ from src.models import Roles
 class Parser:
     def __init__(self, file: UploadFile):
         self.file = file
-        # Используем BytesIO для работы с файлом в памяти
         self.file_content = BytesIO(self.file.file.read())
         self.workbook = openpyxl.load_workbook(self.file_content)
         self.sheet = self.workbook.active
@@ -19,7 +18,7 @@ class Parser:
     def parse_users(self) -> List[Dict]:
         users = []
         for row in self.sheet.iter_rows(min_row=2, values_only=True):
-            if row[0] is None:  # Пропускаем пустые строки
+            if row[0] is None:
                 break
 
             users.append({
@@ -33,11 +32,3 @@ class Parser:
             })
 
         return users
-
-
-if __name__ == "__main__":
-    pass
-    # path = "students.xlsx"
-    # parser = Parser(path)
-    # users_parsed = parser.parse_users()
-    # print(users_parsed)
