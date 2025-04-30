@@ -1,7 +1,7 @@
 import uuid
 
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile
 
 from src.models import User, Roles
 from src.schemas import UserResponse, UserCreate, Token, UserEdit, SuccessfulResponse
@@ -59,6 +59,17 @@ async def create_new_user(
 
     user = await UserService().create_user(user_create, current_user.id)
     return UserResponse(**user.to_dict())
+
+
+@router.post("/load_users", response_model=List[UserResponse])
+async def load_users_from_xlsx(
+        current_user: Annotated[User, Depends(UserService().get_current_user)],
+        file: UploadFile
+):
+    UserService().validate_role(current_user.role, (Roles.admin,))
+
+    loaded_users = await UserService().load_users_from_file(file)
+    return list(map(lambda x: UserResponse(**x.to_dict()), loaded_users))
 
 
 @router.post("/login", response_model=Token)

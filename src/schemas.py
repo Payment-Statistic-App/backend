@@ -59,7 +59,6 @@ class UserEdit(BaseModel):
 class UserLogin(BaseModel):
     login: str
     password: str
-    role: Roles
 
 
 class UserResponse(BaseModel):

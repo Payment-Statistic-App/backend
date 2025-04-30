@@ -2,13 +2,13 @@ import uuid
 import jwt
 
 from typing import Optional, List, Tuple
-from fastapi import Depends
+from fastapi import Depends, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from src.models import User, Roles, OperationTypes
 from src.schemas import UserCreate, TokenData, UserLogin, UserEdit
 from src.exceptions import CredentialException, TokenTypeException, AlreadyExistException, NotFoundException, \
-    AccessException
+    AccessException, IncorrectFileFormatException, ErrorLoadFileException
 from src.repositories import (
     user_repository as user_repo,
     infra_repository as infra_repo,
@@ -17,6 +17,7 @@ from src.repositories import (
 
 from config_data import constants
 from utils import auth_settings
+from utils.excel_parser import Parser as XlsxParser
 
 http_bearer = HTTPBearer()
 
@@ -38,7 +39,6 @@ class UserService:
             raise CredentialException()
         if not auth_settings.validate_password(user_data.password, user.password_hash):
             raise CredentialException()
-        self.validate_role(user.role, (user_data.role,))
 
         return user
 
@@ -105,6 +105,29 @@ class UserService:
         )
 
         return await self.user_repository.create_user(user)
+
+    async def load_users_from_file(self, xlsx_file: UploadFile) -> List[User]:
+        if not xlsx_file.filename.endswith('.xlsx'):
+            raise IncorrectFileFormatException()
+
+        try:
+            xlsx_parser = XlsxParser(xlsx_file)
+            users = xlsx_parser.parse_users()
+        except Exception:
+            await xlsx_file.close()
+            raise ErrorLoadFileException()
+
+        users_create_response: List[User] = []
+        for user in users:
+            try:
+                new_user = await self.user_repository.create_user(UserCreate(**user))
+                users_create_response.append(new_user)
+            except Exception:
+                continue
+
+        await xlsx_file.close()
+
+        return users_create_response
 
     async def edit_user(self, user_id: uuid.UUID, new_user_data: UserEdit, initiator_id: uuid.UUID) -> User:
         user = await self.get_user_by_id(user_id)
