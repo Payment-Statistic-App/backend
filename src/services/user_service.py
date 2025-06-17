@@ -93,16 +93,16 @@ class UserService:
     ) -> User:
         return await self.validate_user(expected_token_type=constants.ACCESS_TOKEN_TYPE, token=token.credentials)
 
-    async def create_user(self, user: UserCreate, initiator_id: uuid.UUID) -> User:
+    async def create_user(self, user: UserCreate) -> User:
         if await self.user_repository.get_user_by_login(user.login) is not None:
             raise AlreadyExistException(constants.ALREADY_EXIST_USER_MESSAGE)
-        await self.operations_repository.create_operation(
-            operation_type=OperationTypes.user,
-            user_id=initiator_id,
-            comment=constants.CREATE_USER_COMMENT.format(
-                name=user.name, surname=user.surname, patronymic=user.patronymic, role=user.role.value
-            )
-        )
+        # await self.operations_repository.create_operation(
+        #     operation_type=OperationTypes.user,
+        #     user_id=initiator_id,
+        #     comment=constants.CREATE_USER_COMMENT.format(
+        #         name=user.name, surname=user.surname, patronymic=user.patronymic, role=user.role.value
+        #     )
+        # )
 
         return await self.user_repository.create_user(user)
 

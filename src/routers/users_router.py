@@ -53,11 +53,11 @@ async def get_students(
 @router.post("/new", response_model=UserResponse)
 async def create_new_user(
         user_create: UserCreate,
-        current_user: Annotated[User, Depends(UserService().get_current_user)]
+        # current_user: Annotated[User, Depends(UserService().get_current_user)]
 ) -> UserResponse:
-    UserService().validate_role(current_user.role, (Roles.admin,))
+    # UserService().validate_role(current_user.role, (Roles.admin,))
 
-    user = await UserService().create_user(user_create, current_user.id)
+    user = await UserService().create_user(user_create)
     return UserResponse(**user.to_dict())
 
 
